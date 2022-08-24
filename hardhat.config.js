@@ -1,5 +1,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-etherscan");
+require('@openzeppelin/hardhat-upgrades');
+
+require("./tasks/petshop");
 
 // Load secrets from `.env` file into `process.env`.
 require('dotenv').config();
