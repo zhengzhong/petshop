@@ -1,0 +1,26 @@
+{
+  "name": "petshop",
+  "description": "A pet shop application running on Ethereum",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhengzhong/petshop.git"
+  },
+  "author": "ZHENG Zhong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhengzhong/petshop/issues"
+  },
+  "homepage": "https://github.com/zhengzhong/petshop#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.1.1",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.7.0",
+    "hardhat": "^2.10.2"
+  }
+}
