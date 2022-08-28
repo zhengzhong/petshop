@@ -1,4 +1,4 @@
-# The PetShop project: Second day on Ethereum
+# The PetShop project, day 2: Creating an ERC721 Standard PetShop NFT
 
 On the second day, we are going to create a simple ERC721 NFT using [OpenZeppelin](https://www.openzeppelin.com/).
 

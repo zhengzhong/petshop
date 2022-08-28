@@ -1,4 +1,4 @@
-# The PetShop project: Third day on Ethereum
+# The PetShop project, day 3: Upgrading the PetShop NFT
 
 On the third day, I'm going to upgrade my PetShop NFT to version 2.
 

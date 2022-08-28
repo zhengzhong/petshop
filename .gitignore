@@ -26,6 +26,9 @@ node_modules/
 artifacts/
 cache/
 
+# CAR files
+*.car
+
 # Explicitly excluded from version control
 *.vcignore
 *.vcignore.*

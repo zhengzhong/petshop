@@ -1,4 +1,4 @@
-# The PetShop project: First day on Ethereum
+# The PetShop project, day 1: Creating a simple token with Hardhat
 
 I'm planning to build a simple web3 pet shop application from scratch. Every day I'll try to enhance the application and write down some notes. By doing so, hopefully I could teach myself about Ethereum, Solidity, Hardhat, and web3 development.
 
