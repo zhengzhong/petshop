@@ -163,3 +163,12 @@ After the upgrade, on Etherscan we can see an `Upgraded` event was emitted:
 ![Etherscan: Upgraded event emitted](./images/day-03-etherscan-upgraded-event.png)
 
 Note that the *proxy* contract address does not change during the upgrade. We will just create a new *logic* contract and update the proxy contract to point to it. Because the proxy contract is the one users or wallets interact with, such kind of upgrade is transparent to the token holders.
+
+## Conclusion
+
+This is my third day on Ethereum. The changes to the PetShop NFT are just minor ones. What's more important is to understand how to manage smart contract upgrades using OpenZeppelin's proxy upgrade pattern. Full source code can be found here: https://github.com/zhengzhong/petshop/releases/tag/day03
+
+## References
+
+- [Writing Upgradeable Contracts](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable)
+- [Proxy Upgrade Pattern](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies)
