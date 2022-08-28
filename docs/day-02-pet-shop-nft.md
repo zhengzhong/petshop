@@ -66,12 +66,11 @@ describe("PetShop contract", function () {
 
   async function deployPetShopFixture() {
     const PetShop = await ethers.getContractFactory("PetShop");
-    const accounts = await ethers.getSigners();
-
     // NOTE: This is an upgradeable contract which involves a proxy contract
     // and one or more logic contracts, so the way how it's deployed is a bit different.
     const petShop = await upgrades.deployProxy(PetShop);
     await petShop.deployed();
+    const accounts = await ethers.getSigners();
     return { PetShop, petShop, accounts };
   }
 
@@ -111,7 +110,7 @@ To run the test:
 
 ```console
 $ npx hardhat test test/PetShop.js
-PetShop contract
+  PetShop contract
     Deployment
       ✔ should initialize the NFT name and symbol (1824ms)
     Transactions
