@@ -9,14 +9,25 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 describe("PetShop contract", function () {
 
   async function deployPetShopFixture() {
-    const PetShop = await ethers.getContractFactory("PetShop");
-    const accounts = await ethers.getSigners();
+    const PetShop_v1 = await ethers.getContractFactory("PetShop");
+    const petShop_v1 = await upgrades.deployProxy(PetShop_v1);
+    await petShop_v1.deployed();
 
-    // NOTE: This is an upgradeable contract which involves a proxy contract
-    // and one or more logic contracts, so the way how it's deployed is a bit different.
-    const petShop = await upgrades.deployProxy(PetShop);
-    await petShop.deployed();
-    return { PetShop, petShop, accounts };
+    const PetShop_v2 = await ethers.getContractFactory("PetShop_v2");
+    const petShop_v2 = await upgrades.upgradeProxy(petShop_v1.address, PetShop_v2);
+    await petShop_v2.deployed();
+
+    console.assert(petShop_v1.address === petShop_v2.address, "Proxy contract address should not change.");
+
+    // NOTE: Although the proxy contract address should not change, the two versions
+    // of the contract have different ABI. We should return the latest version so that
+    // we have access to the latest ABI.
+    const accounts = await ethers.getSigners();
+    return {
+      PetShop: PetShop_v2,
+      petShop: petShop_v2,
+      accounts: accounts,
+    };
   }
 
   describe("Deployment", function() {
@@ -24,6 +35,11 @@ describe("PetShop contract", function () {
       const { petShop } = await loadFixture(deployPetShopFixture);
       expect(await petShop.name()).to.equal("Pet Shop");
       expect(await petShop.symbol()).to.equal("PET");
+    });
+
+    it("should upgrade proxy to version 2", async function() {
+      const { petShop } = await loadFixture(deployPetShopFixture);
+      expect(await petShop.version()).to.equal(2);
     });
   });
 

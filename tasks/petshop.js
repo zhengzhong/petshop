@@ -35,6 +35,28 @@ task("petshop-deploy", `Deploys the ${CONTRACT_NAME} NFT contract`)
     console.log(`Querying NFT: name = ${name}; symbol = ${symbol}`);
   });
 
+task("petshop-upgrade", `Upgrades the ${CONTRACT_NAME} NFT contract`)
+  .addParam("address", "The contract address")
+  .addParam("targetVersion", "The target version to upgrade to")
+  .setAction(async (taskArgs) => {
+    const [deployer] = await ethers.getSigners();
+    console.log(`Deployer: ${deployer.address} (balance: ${await deployer.getBalance()})`);
+
+    // See: https://docs.openzeppelin.com/upgrades-plugins/1.x/hardhat-upgrades
+    // We follow the convention that our contract name has a version suffix `_vN`.
+    const contractName = `${CONTRACT_NAME}_v${taskArgs.targetVersion}`;
+    console.log(`Upgrading proxy contract (${taskArgs.address}) to: ${contractName}`);
+    const Contract = await ethers.getContractFactory(contractName);
+    const contract = await upgrades.upgradeProxy(taskArgs.address, Contract);
+    await contract.deployed();
+    console.assert(contract.address === taskArgs.address, "Proxy contract address should not change.");
+
+    const name = await contract.name();
+    const symbol = await contract.symbol();
+    const version = await contract.version();
+    console.log(`Upgraded contract ${name} (symbol: ${symbol}) to version ${version}.`);
+  });
+
 task("petshop-mint", `Mints a ${CONTRACT_NAME} NFT to an account`)
   .addParam("address", "The contract address")
   .addParam("to", "The receiving account's address")
