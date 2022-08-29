@@ -37,7 +37,7 @@ contract PetShop is ERC721URIStorageUpgradeable {
 
     function initialize() initializer public {
         __ERC721_init("Pet Shop", "PET");
-     }
+    }
 
     function mintToken(string calldata _tokenURI, address _to) external returns (uint256) {
         tokenIds.increment();

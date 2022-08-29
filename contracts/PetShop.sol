@@ -3,12 +3,14 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "hardhat/console.sol";
 
 contract PetShop is ERC721URIStorageUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter private tokenIds;
 
     function initialize() initializer public {
+        console.log("Initializing PetShop...");
         __ERC721_init("Pet Shop", "PET");
      }
 

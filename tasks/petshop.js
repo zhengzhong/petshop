@@ -1,8 +1,6 @@
 const { task } = require("hardhat/config");
 const { loadNFTContract, executeTx } = require("./utils");
 
-const CONTRACT_NAME = "PetShop";
-
 task("balance", "Prints account's balance")
   .addOptionalParam("account", "The account's address")
   .setAction(async (taskArgs) => {
@@ -20,49 +18,77 @@ task("balance", "Prints account's balance")
     }
   });
 
-task("petshop-deploy", `Deploys the ${CONTRACT_NAME} NFT contract`)
+task("petshop-deploy", "Deploys the PetShop NFT contract")
   .setAction(async () => {
     const [deployer] = await ethers.getSigners();
     console.log(`Deployer: ${deployer.address} (balance: ${await deployer.getBalance()})`);
 
-    const Contract = await ethers.getContractFactory(CONTRACT_NAME);
+    const Contract = await ethers.getContractFactory("PetShop");
     const contract = await upgrades.deployProxy(Contract);
     await contract.deployed();
-    console.log(`Deployed ${CONTRACT_NAME} at: ${contract.address}`);
+    console.log(`Deployed PetShop at: ${contract.address}`);
 
     const name = await contract.name();
     const symbol = await contract.symbol();
     console.log(`Querying NFT: name = ${name}; symbol = ${symbol}`);
   });
 
-task("petshop-upgrade", `Upgrades the ${CONTRACT_NAME} NFT contract`)
+task("petshop-upgrade-v2", "Upgrades PetShop NFT to version 2")
   .addParam("address", "The contract address")
-  .addParam("targetVersion", "The target version to upgrade to")
   .setAction(async (taskArgs) => {
     const [deployer] = await ethers.getSigners();
     console.log(`Deployer: ${deployer.address} (balance: ${await deployer.getBalance()})`);
 
-    // See: https://docs.openzeppelin.com/upgrades-plugins/1.x/hardhat-upgrades
-    // We follow the convention that our contract name has a version suffix `_vN`.
-    const contractName = `${CONTRACT_NAME}_v${taskArgs.targetVersion}`;
-    console.log(`Upgrading proxy contract (${taskArgs.address}) to: ${contractName}`);
-    const Contract = await ethers.getContractFactory(contractName);
-    const contract = await upgrades.upgradeProxy(taskArgs.address, Contract);
-    await contract.deployed();
-    console.assert(contract.address === taskArgs.address, "Proxy contract address should not change.");
+    const proxyAddress = taskArgs.address;
 
-    const name = await contract.name();
-    const symbol = await contract.symbol();
-    const version = await contract.version();
+    // See: https://docs.openzeppelin.com/upgrades-plugins/1.x/hardhat-upgrades
+    console.log(`Upgrading proxy contract (${proxyAddress}) to version 2...`);
+    const PetShopV2 = await ethers.getContractFactory("PetShopV2");
+    const petShopV2 = await upgrades.upgradeProxy(proxyAddress, PetShopV2);
+    // Call the reinitializer function.
+    await petShopV2.initializeV2();
+    console.assert(petShopV2.address === proxyAddress, "Proxy address should not change.");
+
+    const name = await petShopV2.name();
+    const symbol = await petShopV2.symbol();
+    const version = await petShopV2.version();
     console.log(`Upgraded contract ${name} (symbol: ${symbol}) to version ${version}.`);
   });
 
-task("petshop-mint", `Mints a ${CONTRACT_NAME} NFT to an account`)
+task("petshop-upgrade-v3", "Upgrades PetShop NFT to version 3")
+  .addParam("address", "The contract address")
+  .setAction(async (taskArgs) => {
+    const [deployer] = await ethers.getSigners();
+    console.log(`Deployer: ${deployer.address} (balance: ${await deployer.getBalance()})`);
+
+    const proxyAddress = taskArgs.address;
+
+    // Verify the current version.
+    const petShop = await loadNFTContract("PetShopV2", proxyAddress);
+    const currentVersion = await petShop.version();
+    if (currentVersion !== 2) {
+      throw new Error(`Current version should be 2 but got ${currentVersion}`);
+    }
+
+    // Upgrade to next version.
+    console.log(`Upgrading proxy contract (${proxyAddress}) to version 3...`);
+    const PetShopV3 = await ethers.getContractFactory("PetShopV3");
+    const petShopV3 = await upgrades.upgradeProxy(proxyAddress, PetShopV3);
+    await petShopV3.initializeV3();
+    console.assert(petShopV3.address === proxyAddress, "Proxy contract address should not change.");
+
+    const name = await petShopV3.name();
+    const symbol = await petShopV3.symbol();
+    const version = await petShopV3.version();
+    console.log(`Upgraded contract ${name} (symbol: ${symbol}) to version ${version}.`);
+  });
+
+task("petshop-mint", "Mints a PetShop NFT to an account")
   .addParam("address", "The contract address")
   .addParam("to", "The receiving account's address")
   .addParam("uri", "The token's URI")
   .setAction(async (taskArgs) => {
-    const contract = await ethers.getContractAt(CONTRACT_NAME, taskArgs.address);
+    const contract = await ethers.getContractAt("PetShopV3", taskArgs.address);
     const name = await contract.name();
     const symbol = await contract.symbol();
     console.log(`Loaded contract from ${taskArgs.address}: ${name} (${symbol})`);
@@ -86,11 +112,11 @@ task("petshop-mint", `Mints a ${CONTRACT_NAME} NFT to an account`)
     console.log(`  tokenID = ${tokenID}`);
   });
 
-task("petshop-check", `Checks a ${CONTRACT_NAME} NFT`)
+task("petshop-check", "Checks a PetShop NFT")
   .addParam("address", "The contract address")
   .addParam("tokenid", "The token ID")
   .setAction(async (taskArgs) => {
-    const contract = await loadNFTContract(CONTRACT_NAME, taskArgs.address);
+    const contract = await loadNFTContract("PetShopV3", taskArgs.address);
     console.log(`Verifying token URI and owner of token #${taskArgs.tokenid}...`);
     const tokenURI = await contract.tokenURI(taskArgs.tokenid);
     const owner = await contract.ownerOf(taskArgs.tokenid);

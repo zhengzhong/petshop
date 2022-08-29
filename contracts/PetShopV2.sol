@@ -3,14 +3,17 @@ pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "hardhat/console.sol";
 
-contract PetShop_v2 is ERC721URIStorageUpgradeable {
+contract PetShopV2 is ERC721URIStorageUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter private tokenIds;
 
-    function initialize() initializer public {
-        __ERC721_init("Pet Shop", "PET");
-     }
+    uint8 private constant VERSION = 2;
+
+    function initializeV2() reinitializer(VERSION) public {
+        console.log("Initializing PetShop version %s...", VERSION);
+    }
 
     function mintToken(string calldata _tokenURI, address _to) external returns (uint256) {
         tokenIds.increment();
@@ -20,7 +23,7 @@ contract PetShop_v2 is ERC721URIStorageUpgradeable {
         return newTokenId;
     }
 
-    function version() external pure returns (uint256) {
-        return 2;
+    function version() external pure returns (uint8) {
+        return VERSION;
     }
 }
